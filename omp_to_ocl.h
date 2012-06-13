@@ -25,6 +25,9 @@ cl_mem buff3 = NULL;
 cl_kernel kernel;
 cl_program program;
 
+#define CHECK(ret) if (ret != CL_SUCCESS) { printf("!!! OpenCL error\n"); exit(1); }
+
+
 void o2o_init()
 {
     cl_int ret = 0;
@@ -32,18 +35,21 @@ void o2o_init()
     cl_platform_id platform_id = NULL;
     cl_uint ret_num_platforms = 0, ret_num_devices = 0;
 
-    /* Get Platform/Device Information */
     ret = clGetPlatformIDs(1, &platform_id, &ret_num_platforms);
-    ret = clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_GPU, 1, &d_id, &ret_num_devices);
+	CHECK(ret);
 
-    /* Create OpenCL Context */
+    ret = clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_GPU, 1, &d_id, &ret_num_devices);
+	CHECK(ret);
+
     ocl_ctx = clCreateContext(NULL, 1, &d_id, NULL, NULL, &ret);
+	CHECK(ret);
 }
 
 void o2o_create_cmd_queue()
 {
     cl_int ret = 0;
     cmd_q = clCreateCommandQueue(ocl_ctx, d_id, 0, &ret);
+	CHECK(ret);
 }
 
 void o2o_create_buffers()
