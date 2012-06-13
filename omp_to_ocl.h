@@ -52,6 +52,13 @@ void o2o_create_cmd_queue()
 	CHECK(ret);
 }
 
+void o2o_create_cmd_queue(cl_command_queue_properties flags)
+{
+    cl_int ret = 0;
+    cmd_q = clCreateCommandQueue(ocl_ctx, d_id, flags, &ret);
+	CHECK(ret);
+}
+
 void o2o_create_buffers()
 {
     cl_int ret = 0;
