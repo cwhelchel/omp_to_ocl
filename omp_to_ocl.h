@@ -9,6 +9,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <cstring>
 
 #define MAX_SOURCE_SIZE (0x100000)
 
@@ -26,6 +27,7 @@ cl_kernel kernel;
 cl_program program;
 
 #define CHECK(ret) if (ret != CL_SUCCESS) { printf("!!! OpenCL error\n"); exit(1); }
+#define CHECKMSG(ret, str) if (ret != CL_SUCCESS) { printf("!!! OpenCL error: %s\n", str); exit(1); }
 
 
 void o2o_init()
@@ -91,7 +93,7 @@ void o2o_read_buffer(cl_mem& buffer, size_t buff_size, void* dest)
     ret = clEnqueueReadBuffer(cmd_q, buffer, CL_TRUE, 0, buff_size, dest, 0, NULL, NULL);
 }
 
-void o2o_create_program_from_file(char *file_name)
+void o2o_create_program_from_file(const char *file_name)
 {
     char *kernel_code;
     size_t source_size;
@@ -141,7 +143,7 @@ void o2o_build_program()
 
     ret = clBuildProgram(program, 1, &d_id, NULL, NULL, NULL);
 
-    CHECK(ret);
+    CHECKMSG(ret, "Error building source");
 }
 
 void o2o_create_kernel(const char *kernel_function_name)
@@ -151,6 +153,17 @@ void o2o_create_kernel(const char *kernel_function_name)
     kernel = clCreateKernel(program, kernel_function_name, &ret);
 
     CHECK(ret);
+}
+
+/**
+* Opens an OpenCL kernel source file, builds it and creates a kernel object
+* with the given kernel function name.
+*/
+void o2o_open_and_build(const char* filename, const char* kernel_func_name)
+{
+    o2o_create_program_from_file(filename);
+    o2o_build_program();
+    o2o_create_kernel(kernel_func_name);
 }
 
 void o2o_set_kernel_arg(int index, size_t arg_size, cl_mem* arg_value)
