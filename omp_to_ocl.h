@@ -72,7 +72,13 @@ void o2o_create_buffers()
 cl_mem o2o_create_buffer(cl_mem_flags flags, size_t buff_size)
 {
     cl_int ret = 0;
-    return clCreateBuffer(ocl_ctx, CL_MEM_READ_WRITE, buff_size, NULL, &ret);
+    return clCreateBuffer(ocl_ctx, flags, buff_size, NULL, &ret);
+}
+
+cl_mem o2o_create_buffer(void* arg, size_t buff_size)
+{
+    cl_int ret = 0;
+    return clCreateBuffer(ocl_ctx, CL_MEM_READ_WRITE, buff_size, arg, &ret);
 }
 
 cl_mem o2o_create_buffer(cl_mem_flags flags, size_t buff_size, void* arg_val)
