@@ -149,7 +149,7 @@ void o2o_build_program()
 
     ret = clBuildProgram(program, 1, &d_id, NULL, NULL, NULL);
 
-    CHECKMSG(ret, "Error building source");
+    CHECKMSG(ret, "building kernel source");
 }
 
 void o2o_create_kernel(const char *kernel_function_name)
@@ -158,7 +158,7 @@ void o2o_create_kernel(const char *kernel_function_name)
 
     kernel = clCreateKernel(program, kernel_function_name, &ret);
 
-    CHECK(ret);
+    CHECKMSG(ret, "creating kernel object");
 }
 
 /**
@@ -175,18 +175,15 @@ void o2o_open_and_build(const char* filename, const char* kernel_func_name)
 void o2o_set_kernel_arg(int index, size_t arg_size, cl_mem* arg_value)
 {
     cl_int ret = 0;
-
-    //ret = clSetKernelArg(kernel, index, arg_size, &arg_value);
     ret = clSetKernelArg(kernel, index, arg_size, (void*)arg_value);
-    //ret = clSetKernelArg(kernel, 1, sizeof(cl_mem), &buff2);
-    //ret = clSetKernelArg(kernel, 2, sizeof(cl_mem), &buff3);
-
+    CHECKMSG(ret, "Error setting kernel arg");
 }
 
 void o2o_execute_kernel(size_t global_size, size_t local_size)
 {
     cl_int ret = 0;
     ret = clEnqueueNDRangeKernel(cmd_q, kernel, 1, NULL, &global_size, &local_size, 0, NULL, NULL);
+    CHECKMSG(ret, "Error queueing kernel for exec");
 }
 
 
@@ -194,6 +191,14 @@ void o2o_execute_kernel(size_t global_size)
 {
     cl_int ret = 0;
     ret = clEnqueueNDRangeKernel(cmd_q, kernel, 1, NULL, &global_size, NULL, 0, NULL, NULL);
+    CHECKMSG(ret, "Error queueing kernel for exec");
+}
+
+void o2o_execute_kernel(size_t* global_size)
+{
+    cl_int ret = 0;
+    ret = clEnqueueNDRangeKernel(cmd_q, kernel, 1, NULL, global_size, NULL, 0, NULL, NULL);
+    CHECKMSG(ret, "Error queueing kernel for exec");
 }
 
 static int finalized = 0;
@@ -240,5 +245,16 @@ void o2o_finalize()
 
 }
 
+void o2o_print_device_info()
+{
+    cl_uint max_compu = 0;
+    cl_int ret = clGetDeviceInfo(d_id, CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(cl_uint), &max_compu, NULL);
+    CHECK(ret)
+    printf("max compute units: %i\n", max_compu);
+
+    ret = clGetDeviceInfo(d_id, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(cl_uint), &max_compu, NULL);
+    CHECK(ret)
+    printf("max workgroup size: %i\n", max_compu);
+}
 
 #endif //__OMP_TO_OCL_H__
